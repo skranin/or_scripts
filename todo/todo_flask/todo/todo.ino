@@ -47,11 +47,12 @@ void setup() {
   Keyboard.begin();
   // initialize serial communication:
   
-  while (Ethernet.begin(mac) != 1)
-  {
-    log("Error getting IP address via DHCP, trying again...");
-    delay(15000);
-  }  
+  Ethernet.begin(mac);
+  //while (Ethernet.begin(mac) != 1)
+  //{
+    //log("Error getting IP address via DHCP, trying again...");
+    //delay(15000);
+  //}  
   delay(1000);
   log("DHCP assigned IP");
   Serial.println(Ethernet.localIP());
@@ -61,42 +62,40 @@ void setup() {
 }
 
 String get(char *url){
-  int err =0;
-  String result = "";
-  EthernetClient c;
-  HttpClient http(c);
+
+    int err =0;
+    String result = "";
+    EthernetClient c;
+    HttpClient http(c);
   
-  err = http.get(kHostname, port, url);
-  if (err == 0)
-  {
-
-
-    err = http.responseStatusCode();
-    if (err >= 0)
+    err = http.get(kHostname, port, url);
+    if (err == 0)
     {
-      err = http.skipResponseHeaders();
+      err = http.responseStatusCode();
       if (err >= 0)
       {
-        int bodyLen = http.contentLength();
-      
-        unsigned long timeoutStart = millis();
-        char c;
-        while ( (http.connected() || http.available()) &&
-               ((millis() - timeoutStart) < kNetworkTimeout) )
+        err = http.skipResponseHeaders();
+        if (err >= 0)
         {
+          int bodyLen = http.contentLength();
+          unsigned long timeoutStart = millis();
+          char c;
+          while ( (http.connected() || http.available()) &&
+               ((millis() - timeoutStart) < kNetworkTimeout) )
+          {
             if (http.available())
-            {
+              {
                 c = http.read();
                 result=result+c;
                
                 bodyLen--;
                 timeoutStart = millis();
-            }
-            else
-            {
+              }
+              else
+              {
                 delay(kNetworkDelay);
-            }
-        }
+              }
+          }
       }
       else
       {
@@ -109,13 +108,14 @@ String get(char *url){
       Serial.print("Getting response failed: ");
       log(err);
     }
-  }
+    }
   else
   {
     log("Connect failed: "+err);
   }
   http.stop();
   return result;
+
 }
 
 void loop() {
@@ -127,7 +127,14 @@ void loop() {
 		    lastAltTabRefreshTime = millis() ;
         altTab();
 
-        log(get("/get-window"));
+        String currentWindow=get("/get-window");
+        if(currentWindow.indexOf("Visual Studio Code") > 0){
+          log("It is VS CODE !!!!!");
+
+        }
+        else{
+          log("It is not VS CODE");
+        }
 	  }
     // Clicking right mouse button every x minutes here
     if(millis() - lastMouseRighClickRefreshTime >= MOUSE_RIGHT_CLICK_REPEAT_INTERVAL){
@@ -155,6 +162,19 @@ void typeSomeRandomKeys(){
    delay(300 * random(1, 5));
   } 
   esc();
+}
+
+void vsCodesSwitchBetweenTabs(){
+  Keyboard.press(KEY_LEFT_CTRL);
+  // Clicking up/down keys up to 7 times
+  for(int i = 0; i <= random(1,7); i++)
+  {
+   Keyboard.press(KEY_TAB);
+   delay(10 * random(1, 5));
+   Keyboard.release(KEY_TAB); 
+   delay(300 * random(1, 5));
+  } 
+  Keyboard.releaseAll(); 
 }
 
 void altTab() {
