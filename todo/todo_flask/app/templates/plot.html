@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+    {% block content %}
+        <script type="text/javascript" src="static/bokeh-2.0.2.min.js"></script>
+        <script type="text/javascript" src="static/bokeh-widgets-2.0.2.min.js"></script>
+        <script type="text/javascript" src="static/bokeh-tables-2.0.2.min.js"></script>
+        <script type="text/javascript" src="static/bokeh-gl-2.0.2.min.js"></script>
+        <script type="text/javascript" src="static/bokeh-api-2.0.2.min.js"></script>
+        {{ div_temperature|safe }}
+        {{ script_temperature|safe }}
+
+        {{ div_pressure|safe }}
+        {{ script_pressure|safe }}
+
+        {{ div_humidity|safe }}
+        {{ script_humidity|safe }}
+<hr>
+        <div>{{debug_text}}</div>
+
+    {% endblock %}
+
+
+
+
