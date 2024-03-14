@@ -64,13 +64,13 @@ def loop(on_off, python_log):
                                                url_to_visit), python_log)
 
             if browser == "ff":
-                #driverFF.get(url_to_visit)
+                driverFF.get(url_to_visit)
                 counters["ff"] = counters["ff"] + 1
             if browser == "chrome":
-                #driverChrome.get(url_to_visit)
+                driverChrome.get(url_to_visit)
                 counters["chrome"] = counters["chrome"] + 1
             if browser == "edge":
-                #driverEdge.get(url_to_visit)
+                driverEdge.get(url_to_visit)
                 counters["edge"] = counters["edge"] + 1
 
             counters["all"] = counters["all"] + 1
@@ -118,10 +118,10 @@ def getDriver(browser):
 
 def loginToOR(driver, environmentUrl):
     pass
-    #driver.get(environmentUrl)
-    #driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
-    #driver.find_element(By.ID, "Password").send_keys(OR_PASS)
-    #driver.find_element(By.XPATH, '//button[contains(text(), "Sign in")]').click()
+    driver.get(environmentUrl)
+    driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
+    driver.find_element(By.ID, "Password").send_keys(OR_PASS)
+    driver.find_element(By.XPATH, '//button[contains(text(), "Sign in")]').click()
 
 
 def getEnvironmentFromUrl(url):
