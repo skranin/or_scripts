@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-textarea {
-  width: 900%;
-  height: 150px;
-  padding: 12px 20px;
-  box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-  font-size: 16px;
-  resize: none;
-}
-</style>
     <title>Cypress tests monitor</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,6 +12,35 @@ textarea {
             crossorigin="anonymous"></script>
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <style>
+        .container1{
+            height:200px;
+            width:100%;
+            overflow:auto;
+            border:1px solid green;
+        }
+        .container2 {
+            min-height:100%;
+            display:table;
+        }
+        .textarea {
+            width:100%;
+            font-size: 18px;
+            font-weight: normal;
+            line-height: 18px;
+            outline: none;
+            text-align: left;
+            vertical-align: top;
+            display: table-cell;
+
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+            word-wrap: break-word;
+            overflow:hidden;
+        }
+    </style>
 </head>
 
 
@@ -89,6 +105,8 @@ textarea {
   function toggleOff() {
     $('#toggle-on-off').bootstrapToggle('off')
   }
+
+
 </script>
 
 

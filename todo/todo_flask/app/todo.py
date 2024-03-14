@@ -117,7 +117,6 @@ def getDriver(browser):
 
 
 def loginToOR(driver, environmentUrl):
-    pass
     driver.get(environmentUrl)
     driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
     driver.find_element(By.ID, "Password").send_keys(OR_PASS)
