@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+textarea {
+  width: 900%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: 16px;
+  resize: none;
+}
+</style>
     <title>Cypress tests monitor</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,29 +28,65 @@
 </head>
 
 
-<body  onload="setup()">
+<body onload="setup()">
 <div>
     <input onclick="loadDoc()" id="toggle-on-off" type="checkbox" checked data-toggle="toggle" data-width="100%"
            data-onstyle="success" data-offstyle="danger">
 </div>
-<div id="debug">
-</div>
+
+<div id="log"></div>
+
+
+{% block log_python %}
+{% endblock %}
 
 <script>
   $(function() {
     $('#toggle-on-off').change(function() {
       var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          document.getElementById("debug").innerHTML = this.responseText;
-       }
-      };
       xhttp.open("GET", "kb.html?checked="+$(this).prop('checked'), true);
       xhttp.send();
     })
   })
 
   function setup() {
+    setInterval(onOffStateChecker, 1000);
+
+  }
+
+  function onOffStateChecker() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          if (this.responseText == "on"){
+            toggleOn()
+          }
+          if (this.responseText == "off"){
+            toggleOff()
+          }
+        }
+      };
+    xhttp.open("GET", "get-toggle-state", true);
+    xhttp.send();
+    getlog()
+  }
+
+  function getlog(){
+  var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById("log").innerHTML = this.responseText;
+        }
+      };
+    xhttp.open("GET", "python-log", true);
+    xhttp.send();
+  }
+
+  function toggleOn() {
+    $('#toggle-on-off').bootstrapToggle('on')
+  }
+
+  function toggleOff() {
     $('#toggle-on-off').bootstrapToggle('off')
   }
 </script>

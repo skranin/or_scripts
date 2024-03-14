@@ -12,16 +12,22 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-TOGGLE_STATE = False
 OR_USERNAME = "sergey@ownerrez.com"
 OR_PASS = "qqqQQQ111###"
+
 
 
 def getCurrentTime():
     return datetime.now(timezone('EST')).strftime('%H:%M:%S')
 
 
-def loop(on_off):
+def loop(on_off, python_log):
+    def debug(text, python_log):
+        print(text)
+        python_log.append(text)
+        if len(python_log) > 100:
+            python_log = python_log[-100:-1]
+
     # Long pause every 45-70 minutes
     next_time_long_sleep = (time.time()) + (random.randint(45, 70) * 60)
     counters = {"all": 1, "edge": 1, "ff": 1, "chrome": 1}
@@ -45,26 +51,26 @@ def loop(on_off):
         for url in environment_urls:
             loginToOR(driver=driver, environmentUrl=url)
 
-    print("Login finished")
+    debug("Login finished",python_log)
 
     # Main selenium loop
-    print("In the main loop")
+    debug("In the main loop",python_log)
     while True:
         if on_off.value == "on":
             browser = getBrowser()
             url_to_visit = all_urls[random.randint(0, len(all_urls))]
 
-            print("{}.\t{} {}({}) - {}".format(counters["all"], getCurrentTime(), browser, counters[browser],
-                                               url_to_visit))
+            debug("{}.\t{} {}({}) - {}".format(counters["all"], getCurrentTime(), browser, counters[browser],
+                                               url_to_visit), python_log)
 
             if browser == "ff":
-                driverFF.get(url_to_visit)
+                #driverFF.get(url_to_visit)
                 counters["ff"] = counters["ff"] + 1
             if browser == "chrome":
-                driverChrome.get(url_to_visit)
+                #driverChrome.get(url_to_visit)
                 counters["chrome"] = counters["chrome"] + 1
             if browser == "edge":
-                driverEdge.get(url_to_visit)
+                #driverEdge.get(url_to_visit)
                 counters["edge"] = counters["edge"] + 1
 
             counters["all"] = counters["all"] + 1
@@ -72,15 +78,15 @@ def loop(on_off):
             if time.time() > next_time_long_sleep:
                 # Sleep 15-40 minutes periodically
                 longSleep = random.randint(15, 40)
-                print("\t{} Long sleep: {} minutes".format(getCurrentTime(), longSleep))
+                debug("\t{} Long sleep: {} minutes".format(getCurrentTime(), longSleep), python_log)
                 time.sleep(longSleep * 60)
                 next_time_long_sleep = (time.time()) + (random.randint(45, 70) * 60)
-                print("\t\t{} Next long sleep: in {} minutes".format(getCurrentTime(), str(int(
-                    (next_time_long_sleep - time.time()) / 60))))
+                debug("\t\t{} Next long sleep: in {} minutes".format(getCurrentTime(), str(int(
+                    (next_time_long_sleep - time.time()) / 60))), python_log)
             else:
                 # Sleep after every request
                 shortSleep = random.randint(10, 120)
-                print("\t{} Sleep: {} sec.".format(getCurrentTime(), shortSleep))
+                debug("\t{} Sleep: {} sec.".format(getCurrentTime(), shortSleep), python_log)
                 time.sleep(shortSleep)
 
 
@@ -111,10 +117,11 @@ def getDriver(browser):
 
 
 def loginToOR(driver, environmentUrl):
-    driver.get(environmentUrl)
-    driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
-    driver.find_element(By.ID, "Password").send_keys(OR_PASS)
-    driver.find_element(By.XPATH, '//button[contains(text(), "Sign in")]').click()
+    pass
+    #driver.get(environmentUrl)
+    #driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
+    #driver.find_element(By.ID, "Password").send_keys(OR_PASS)
+    #driver.find_element(By.XPATH, '//button[contains(text(), "Sign in")]').click()
 
 
 def getEnvironmentFromUrl(url):
@@ -150,29 +157,26 @@ def getEnvironmentFromUrl(url):
         return "non-or"
 
 
-@app.route('/index.html', methods=['GET'])
+
+@app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
 
-@app.route('/toggle-state.html', methods=['GET'])
+@app.route('/get-toggle-state', methods=['GET'])
 def togglestate():
-    global TOGGLE_STATE
-    return TOGGLE_STATE
+    return onOff.value
 
 
 @app.route('/kb.html', methods=['GET'])
-def example():
-    global TOGGLE_STATE
+def changeOnOffToggleState():
     state = request.args.get('checked')
     if state == 'true':
-        TOGGLE_STATE = True
         onOff.value = "on"
     else:
-        TOGGLE_STATE = False
         onOff.value = "off"
 
-    return render_template('event.html', checked=TOGGLE_STATE)
+    return render_template('event.html', div_debug=onOff.value)
 
 
 @app.errorhandler(werkzeug.exceptions.NotFound)
@@ -180,10 +184,18 @@ def handle_bad_request(e):
     return 'Four o four ! (404)', 404
 
 
+@app.route('/python-log', methods=['GET'])
+def python_log():
+
+
+    return render_template('python-log.html',  logs=python_log)
+
 if __name__ == '__main__':
     mgr = Manager()
     # Sending this variable to thread.
     onOff = mgr.Value(str, "off")
-    P1 = Process(target=loop, args=(onOff,))
+    python_log=mgr.list([])
+    P1 = Process(target=loop, args=(onOff,python_log,))
     P1.start()
     app.run(port=8088, host="0.0.0.0", use_reloader=False, )
+
