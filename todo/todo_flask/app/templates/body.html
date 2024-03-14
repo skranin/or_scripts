@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<body onload="setup()">
+<div>
+    <input onclick="loadDoc()" id="toggle-on-off" type="checkbox" checked data-toggle="toggle" data-width="100%"
+           data-onstyle="success" data-offstyle="danger">
+</div>
+
+<div>
+    <div>
+        <label for="arduino_is_connected"><b>Arduino is connected:</b></label>
+        <span id="arduino_is_connected">No data</span>
+    </div>
+    <div>
+        <label for="arduino_is_inabled"><b>Arduino is enabled:</b></label>
+        <span id="arduino_is_inabled">No data</span>
+    </div>
+</div>
+<div>
+    <div>
+        <label for="arduino_is_inabled"><b>Current window:</b></label>
+        <span id="current window">No data</span>
+    </div>
+</div>
+
+<div id="log"></div>
+
+
+</body>
+{% endblock %}

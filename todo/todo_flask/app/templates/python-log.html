@@ -1,22 +1,16 @@
 <div>
-
-
-
     <div class="container1">
-    <div class="container2">
-        <div contenteditable="true" class="textarea" style="background-color:black;">
-            hello molly
-            <font color="#ffffff">
-            {% for line in logs|reverse %}
-            {{line}}
-            <br>
-            {% endfor %}
-        </font>
+        <div class="container2">
+            <div contenteditable="true" class="textarea" >
+                <font color="#ffffff">
+                {% for line in logs|reverse %}
+                {{line}}
+                <br>
+                {% endfor %}
+                </font>
+            </div>
         </div>
     </div>
-</div>
-
-
 </div>
 
 

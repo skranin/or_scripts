@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template
 import werkzeug
-
+import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -121,6 +121,7 @@ def loginToOR(driver, environmentUrl):
     driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
     driver.find_element(By.ID, "Password").send_keys(OR_PASS)
     driver.find_element(By.XPATH, '//button[contains(text(), "Sign in")]').click()
+    pass
 
 
 def getEnvironmentFromUrl(url):
@@ -159,7 +160,7 @@ def getEnvironmentFromUrl(url):
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    return render_template('body.html')
 
 
 @app.route('/get-toggle-state', methods=['GET'])
@@ -175,7 +176,7 @@ def changeOnOffToggleState():
     else:
         onOff.value = "off"
 
-    return render_template('event.html', div_debug=onOff.value)
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
 
 @app.errorhandler(werkzeug.exceptions.NotFound)
@@ -185,9 +186,12 @@ def handle_bad_request(e):
 
 @app.route('/python-log', methods=['GET'])
 def python_log():
-
-
     return render_template('python-log.html',  logs=python_log)
+
+@app.route('/current-window', methods=['GET'])
+def current_window():
+    #todo: find current window here based on os and return it instead of dummy return
+    return render_template('current-window.html',  window="some window")
 
 if __name__ == '__main__':
     mgr = Manager()
