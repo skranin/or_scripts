@@ -16,17 +16,20 @@ OR_USERNAME = "sergey@ownerrez.com"
 OR_PASS = "qqqQQQ111###"
 
 
-
 def getCurrentTime():
-    return datetime.now(timezone('EST')).strftime('%H:%M:%S')
+    return datetime.now(timezone('US/Eastern')).strftime('%H:%M:%S')
 
 
-def loop(on_off, python_log):
+def loop(on_off, python_log, debug_mode):
     def debug(text, python_log):
         print(text)
-        python_log.append(text)
-        if len(python_log) > 100:
-            python_log = python_log[-100:-1]
+        # Saving only latest 8 messages here
+        if len(python_log) > 7:
+            for i in range(0, len(python_log) - 1):
+                python_log[i] = python_log[i + 1]
+            python_log[len(python_log) - 1] = text
+        else:
+            python_log.append(text)
 
     # Long pause every 45-70 minutes
     next_time_long_sleep = (time.time()) + (random.randint(45, 70) * 60)
@@ -49,36 +52,37 @@ def loop(on_off, python_log):
     # Login to orez for all environments for each browser
     for driver in {driverFF, driverChrome, driverEdge}:
         for url in environment_urls:
-            loginToOR(driver=driver, environmentUrl=url)
+            if not debug_mode:
+                loginToOR(driver=driver, environmentUrl=url)
 
-    debug("Login finished",python_log)
+    debug("Login finished", python_log)
 
     # Main selenium loop
-    debug("In the main loop",python_log)
+    debug("In the main loop", python_log)
     while True:
         if on_off.value == "on":
             browser = getBrowser()
             url_to_visit = all_urls[random.randint(0, len(all_urls))]
 
-            debug("{}.\t{} {}({}) - {}".format(counters["all"], getCurrentTime(), browser, counters[browser],
+            debug("{}. {} {}({}) - {}".format(counters["all"], getCurrentTime(), browser, counters[browser],
                                                url_to_visit), python_log)
+            if not debug_mode:
+                if browser == "ff":
+                    driverFF.get(url_to_visit)
+                    counters["ff"] = counters["ff"] + 1
+                if browser == "chrome":
+                    driverChrome.get(url_to_visit)
+                    counters["chrome"] = counters["chrome"] + 1
+                if browser == "edge":
+                    driverEdge.get(url_to_visit)
+                    counters["edge"] = counters["edge"] + 1
 
-            if browser == "ff":
-                driverFF.get(url_to_visit)
-                counters["ff"] = counters["ff"] + 1
-            if browser == "chrome":
-                driverChrome.get(url_to_visit)
-                counters["chrome"] = counters["chrome"] + 1
-            if browser == "edge":
-                driverEdge.get(url_to_visit)
-                counters["edge"] = counters["edge"] + 1
-
-            counters["all"] = counters["all"] + 1
+                counters["all"] = counters["all"] + 1
 
             if time.time() > next_time_long_sleep:
                 # Sleep 15-40 minutes periodically
                 longSleep = random.randint(15, 40)
-                debug("\t{} Long sleep: {} minutes".format(getCurrentTime(), longSleep), python_log)
+                debug("{}. {} Long sleep: {} minutes".format(counters["all"],getCurrentTime(), longSleep), python_log)
                 time.sleep(longSleep * 60)
                 next_time_long_sleep = (time.time()) + (random.randint(45, 70) * 60)
                 debug("\t\t{} Next long sleep: in {} minutes".format(getCurrentTime(), str(int(
@@ -86,7 +90,7 @@ def loop(on_off, python_log):
             else:
                 # Sleep after every request
                 shortSleep = random.randint(10, 120)
-                debug("\t{} Sleep: {} sec.".format(getCurrentTime(), shortSleep), python_log)
+                debug("{}. {} Sleep: {} sec.".format(counters["all"], getCurrentTime(), shortSleep), python_log)
                 time.sleep(shortSleep)
 
 
@@ -117,11 +121,11 @@ def getDriver(browser):
 
 
 def loginToOR(driver, environmentUrl):
-    driver.get(environmentUrl)
-    driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
-    driver.find_element(By.ID, "Password").send_keys(OR_PASS)
-    driver.find_element(By.XPATH, '//button[contains(text(), "Sign in")]').click()
-    pass
+    if not debug_mode:
+        driver.get(environmentUrl)
+        driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
+        driver.find_element(By.ID, "Password").send_keys(OR_PASS)
+        driver.find_element(By.XPATH, '//button[contains(text(), "Sign in")]').click()
 
 
 def getEnvironmentFromUrl(url):
@@ -157,7 +161,6 @@ def getEnvironmentFromUrl(url):
         return "non-or"
 
 
-
 @app.route('/', methods=['GET'])
 def index():
     return render_template('body.html')
@@ -176,7 +179,7 @@ def changeOnOffToggleState():
     else:
         onOff.value = "off"
 
-    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
 
 @app.errorhandler(werkzeug.exceptions.NotFound)
@@ -186,19 +189,21 @@ def handle_bad_request(e):
 
 @app.route('/python-log', methods=['GET'])
 def python_log():
-    return render_template('python-log.html',  logs=python_log)
+    return render_template('python-log.html', logs=python_log)
+
 
 @app.route('/current-window', methods=['GET'])
 def current_window():
-    #todo: find current window here based on os and return it instead of dummy return
-    return render_template('current-window.html',  window="some window")
+    # todo: find current window here based on os and return it instead of dummy return
+    return render_template('current-window.html', window="some window")
+
 
 if __name__ == '__main__':
     mgr = Manager()
     # Sending this variable to thread.
     onOff = mgr.Value(str, "off")
-    python_log=mgr.list([])
-    P1 = Process(target=loop, args=(onOff,python_log,))
+    debug_mode = mgr.Value(bin, True)
+    python_log = mgr.list([])
+    P1 = Process(target=loop, args=(onOff, python_log, debug_mode))
     P1.start()
     app.run(port=8088, host="0.0.0.0", use_reloader=False, )
-

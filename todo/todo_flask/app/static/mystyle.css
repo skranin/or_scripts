@@ -1,6 +1,6 @@
 
         .container1{
-            height:200px;
+            height:220px;
             width:100%;
             overflow:auto;
             border:1px solid green;
@@ -14,18 +14,15 @@
         }
         .textarea {
             width:100%;
-            font-size: 18px;
-            font-weight: normal;
-            line-height: 18px;
             outline: none;
             text-align: left;
             vertical-align: top;
             display: table-cell;
-
             -webkit-user-select: text;
             -moz-user-select: text;
             -ms-user-select: text;
             user-select: text;
             word-wrap: break-word;
             overflow:hidden;
+            padding: 10px;
         }
