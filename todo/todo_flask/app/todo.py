@@ -15,8 +15,9 @@ app = Flask(__name__)
 OR_USERNAME = "sergey@ownerrez.com"
 OR_PASS = "qqqQQQ111###"
 
+
 def getWindow():
-    if os.name=="nt":
+    if os.name == "nt":
         from ctypes import windll, create_unicode_buffer
         hWnd = windll.user32.GetForegroundWindow()
         length = windll.user32.GetWindowTextLengthW(hWnd)
@@ -25,6 +26,7 @@ def getWindow():
         if buf.value:
             return buf.value
     return None
+
 
 def getCurrentTime():
     return datetime.now(timezone('US/Eastern')).strftime('%H:%M:%S')
@@ -75,7 +77,7 @@ def loop(on_off, python_log, debug_mode):
             url_to_visit = all_urls[random.randint(0, len(all_urls))]
 
             debug("{}. {} {}({}) - {}".format(counters["all"], getCurrentTime(), browser, counters[browser],
-                                               url_to_visit), python_log)
+                                              url_to_visit), python_log)
             if not debug_mode.value:
                 if browser == "ff":
                     driverFF.get(url_to_visit)
@@ -92,7 +94,7 @@ def loop(on_off, python_log, debug_mode):
             if time.time() > next_time_long_sleep:
                 # Sleep 15-40 minutes periodically
                 longSleep = random.randint(15, 40)
-                debug("{}. {} Long sleep: {} minutes".format(counters["all"],getCurrentTime(), longSleep), python_log)
+                debug("{}. {} Long sleep: {} minutes".format(counters["all"], getCurrentTime(), longSleep), python_log)
                 time.sleep(longSleep * 60)
                 next_time_long_sleep = (time.time()) + (random.randint(45, 70) * 60)
                 debug("\t\t{} Next long sleep: in {} minutes".format(getCurrentTime(), str(int(
@@ -201,9 +203,9 @@ def python_log():
     return render_template('python-log.html', logs=python_log)
 
 
-@app.route('/current-window', methods=['GET'])
+@app.route('/cw', methods=['GET'])
 def current_window():
-    return render_template('current-window.html', window=getWindow())
+    return render_template('cw.html', window=getWindow())
 
 
 if __name__ == '__main__':

@@ -45,13 +45,24 @@
   }
 
   function getlog(){
-  var xhttp = new XMLHttpRequest();
+    var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
           document.getElementById("log").innerHTML = this.responseText;
         }
       };
     xhttp.open("GET", "python-log", true);
+    xhttp.send();
+  }
+
+  function getCW(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById("current_window").innerHTML = this.responseText;
+        }
+      };
+    xhttp.open("GET", "cw", true);
     xhttp.send();
   }
 
