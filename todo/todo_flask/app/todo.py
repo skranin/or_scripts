@@ -3,7 +3,7 @@ import werkzeug
 import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-
+import os
 import random
 import time
 from multiprocessing import Process, Manager
@@ -15,6 +15,16 @@ app = Flask(__name__)
 OR_USERNAME = "sergey@ownerrez.com"
 OR_PASS = "qqqQQQ111###"
 
+def getWindow():
+    if os.name=="nt":
+        from ctypes import windll, create_unicode_buffer
+        hWnd = windll.user32.GetForegroundWindow()
+        length = windll.user32.GetWindowTextLengthW(hWnd)
+        buf = create_unicode_buffer(length + 1)
+        windll.user32.GetWindowTextW(hWnd, buf, length + 1)
+        if buf.value:
+            return buf.value
+    return None
 
 def getCurrentTime():
     return datetime.now(timezone('US/Eastern')).strftime('%H:%M:%S')
@@ -193,8 +203,7 @@ def python_log():
 
 @app.route('/current-window', methods=['GET'])
 def current_window():
-    # todo: find current window here based on os and return it instead of dummy return
-    return render_template('current-window.html', window="some window")
+    return render_template('current-window.html', window=getWindow())
 
 
 if __name__ == '__main__':
