@@ -52,7 +52,7 @@ def loop(on_off, python_log, debug_mode):
     # Login to orez for all environments for each browser
     for driver in {driverFF, driverChrome, driverEdge}:
         for url in environment_urls:
-            if not debug_mode:
+            if not debug_mode.value:
                 loginToOR(driver=driver, environmentUrl=url)
 
     debug("Login finished", python_log)
@@ -66,7 +66,7 @@ def loop(on_off, python_log, debug_mode):
 
             debug("{}. {} {}({}) - {}".format(counters["all"], getCurrentTime(), browser, counters[browser],
                                                url_to_visit), python_log)
-            if not debug_mode:
+            if not debug_mode.value:
                 if browser == "ff":
                     driverFF.get(url_to_visit)
                     counters["ff"] = counters["ff"] + 1
@@ -121,11 +121,10 @@ def getDriver(browser):
 
 
 def loginToOR(driver, environmentUrl):
-    if not debug_mode:
-        driver.get(environmentUrl)
-        driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
-        driver.find_element(By.ID, "Password").send_keys(OR_PASS)
-        driver.find_element(By.XPATH, '//button[contains(text(), "Sign in")]').click()
+    driver.get(environmentUrl)
+    driver.find_element(By.ID, "EmailAddress").send_keys(OR_USERNAME)
+    driver.find_element(By.ID, "Password").send_keys(OR_PASS)
+    driver.find_element(By.XPATH, '//button[contains(text(), "Sign in")]').click()
 
 
 def getEnvironmentFromUrl(url):
@@ -202,7 +201,7 @@ if __name__ == '__main__':
     mgr = Manager()
     # Sending this variable to thread.
     onOff = mgr.Value(str, "off")
-    debug_mode = mgr.Value(bin, True)
+    debug_mode = mgr.Value(bool, False)
     python_log = mgr.list([])
     P1 = Process(target=loop, args=(onOff, python_log, debug_mode))
     P1.start()
